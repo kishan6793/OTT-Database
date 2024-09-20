@@ -1,0 +1,87 @@
+=> Query :
+
+
+1. Give the list of the seasons of the TV_Series whose name is 'Game of Thrones' and all episodes in those seasons  have duration  less than 1 hour.
+	SELECT Season_No
+	FROM Episode NATURAL JOIN TV_Series 
+	WHERE TV_Series.Content_ID IN 
+	(SELECT Content_ID FROM Content WHERE Title = 'Game of Thrones')
+	GROUP BY Season_No
+	HAVING MAX(Episode.Duration) < INTERVAL '1 hour';
+
+
+2. List all the shows which are released between the years 2017 to 2019 whose duration is less than 150 minutes.
+	SELECT Content_ID, Title FROM Content natural join shows 
+	WHERE release_date BETWEEN '2017-01-01' AND '2019-12-31' AND duration < INTERVAL '150 minutes';
+
+3. List the companies having ad genre "Technology"  whose ad income exceeds 70 lakhs and whose views are less than of 1.5 million.
+	SELECT Company_Name 
+	FROM Advertisement NATURAL JOIN Advertise_Genre
+	WHERE Revenue > 7000000 AND Views < 1500000 AND Genre = 'Technology';
+
+4. Provide the list of User_Id, Stream_ID, and Content_title for May 17, 2023, which has a duration of 4 hours.
+	SELECT User_ID, Stream_ID, Title FROM Streams NATURAL JOIN Content 
+	WHERE Stream_date = '2023-05-17' AND Duration = INTERVAL '4 hours';
+
+5. Provide a list of every Action film available with English audio and subtitles.
+	SELECT Content_ID, Title
+	FROM Content NATURAL JOIN Content_Audio NATURAL JOIN Content_Subtitle NATURAL JOIN Content_Genre 
+	WHERE Audio = 'English' AND Subtitle = 'English' AND Genre = 'Action';
+
+6. List all the drama-genre films with an IMDB rating between 7 and 9 that have made more than $5 million.
+	SELECT Content_ID, Title FROM
+	Content NATURAL JOIN Statistics NATURAL JOIN Content_Genre 
+	WHERE IMDB_rating BETWEEN 7 AND 9 AND Genre = 'Drama' AND Revenue > 5000000;
+
+7. Provide a list of the content with "Aamir Khan" as the star with a budget of less than 100 million that Doesn't have Gujarati and English subtitles.
+	SELECT Content_ID, Title
+	FROM Content NATURAL JOIN Content_Subtitle NATURAL JOIN Content_Cast 
+	NATURAL JOIN Actor NATURAL JOIN Statistics 
+	WHERE Subtitle NOT IN ('English', 'Gujarati') AND Budget < 100000000 AND Name = 'Aamir Khan';
+
+8. What is the most popular genre among people?
+	SELECT genre, MAX(total_view) AS max_views 
+	FROM content_genre NATURAL JOIN content NATURAL JOIN statistics 
+	GROUP BY genre ORDER BY max_views DESC LIMIT 1;
+
+9. Provide a list of the upcoming adventure-themed films starring Pankaj Tripathi.
+	SELECT Content_ID, Title
+	FROM Content NATURAL JOIN Coming_soon  NATURAL JOIN Content_Genre  NATURAL JOIN Content_Cast NATURAL JOIN Actor 
+	WHERE Name = 'Pankaj Tripathi' AND genre = 'Adventure';
+
+10. Count the no. of the contents, grouped by content_type ,whose total profit is greater than 50 million.
+	SELECT Content_Type, COUNT(*) AS Content_Count
+	FROM Content NATURAL JOIN Statistics 
+	WHERE Revenue - Budget > 50000000
+	GROUP BY Content_Type;
+
+11. Count the total stream duration of subscribed users.
+	SELECT SUM(Streams.Duration) AS Total_Stream_Duration
+	FROM Streams JOIN Ott_User ON Streams.User_ID = Ott_User.User_ID
+	WHERE Subscription_type ='Premium';
+
+12. Name the actor whose nationality is Indian and who has starred in more than two films.
+	SELECT Name FROM 
+	Actor NATURAL JOIN Starred_in NATURAL JOIN Content 
+	WHERE Nationality = 'Indian'
+	GROUP BY Name HAVING COUNT(Content_ID) > 2;
+
+13.  Give the list of watchlists of subscribed users having age under 60.
+	SELECT User_ID, Name, Watchlist FROM 
+	Ott_User NATURAL JOIN Watchlist 
+	WHERE DOB > current_date - INTERVAL '60 years' and Subscription_type='Premium';
+
+14. Give the list of contents having genre 'Adventure' produced by Dharma Productions with an IMDB rating above 8.
+	SELECT Content_ID, Title
+	FROM Content NATURAL JOIN Production NATURAL JOIN Content_Genre 
+	WHERE Name = 'Dharma Productions'
+	AND Genre = 'Adventure' AND IMDB_rating > 8;
+
+
+15. Name the highest watched film that was released in the year 2015 and has English subtitles.
+	SELECT title FROM 
+	content NATURAL JOIN movies  NATURAL JOIN content_subtitle NATURAL JOIN statistics  
+	WHERE subtitle='English' AND extract(year from release_date) = 2015  
+	ORDER BY total_view DESC limit 1;
+
+
